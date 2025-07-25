@@ -1,0 +1,60 @@
+title: NSFW Novel Generator
+sdk: gradio
+sdk_version: 4.0.0
+app_file: app_spaces.py
+pinned: false
+license: mit
+short_description: AI-powered NSFW novel generator using UnfilteredAI/NSFW-3B with pipeline optimization
+description: |
+  Generate creative adult stories using the UnfilteredAI/NSFW-3B model with Hugging Face Pipeline optimization.
+  
+  Features:
+  - Pipeline-optimized inference for better performance
+  - GPU acceleration support
+  - Interactive parameter control (temperature, top-p, length)
+  - Multiple genre options
+  - Real-time generation with progress tracking
+  
+  ⚠️ Content Warning: This application generates adult content. Use responsibly and ensure compliance with local laws.
+  
+  Technical Details:
+  - Model: UnfilteredAI/NSFW-3B
+  - Framework: Hugging Face Transformers with Pipeline API
+  - Interface: Gradio
+  - Optimization: Automatic device mapping and memory management
+
+tags:
+  - text-generation
+  - creative-writing
+  - nsfw
+  - transformers
+  - pipeline
+  - story-generation
+  - ai-writing
+  - adult-content
+
+models:
+  - UnfilteredAI/NSFW-3B
+
+# Hardware configuration
+hardware: t4-small
+suggest_hardware: t4-small
+
+# Space visibility (recommended: private for NSFW content)
+# visibility: private
+
+# Environment variables (optional)
+# env:
+#   HUGGINGFACE_HUB_TOKEN: your_token_here
+#   MODEL_NAME: UnfilteredAI/NSFW-3B
+#   USE_PIPELINE: "true"
+#   TORCH_DTYPE: float16
+
+# Disable certain features for better performance
+disable_embedding: false
+suggested_storage: persistent
+
+# Custom CSS and styling (optional)
+custom_headers:
+  - name: "Content-Warning"
+    value: "This application generates adult content"
