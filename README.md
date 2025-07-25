@@ -26,6 +26,7 @@ If you want to run the application locally instead of in Codespaces:
 
 1. Clone the repository
 2. Install dependencies: `pip install -r requirements.txt`
+   - Note: If you encounter issues with package installation, try installing without version constraints: `pip install flask numpy requests transformers torch accelerate sentencepiece`
 3. Run the application: `python app.py`
 4. Open your browser to `http://localhost:5000`
 
@@ -68,6 +69,27 @@ This application is configured to use the UnfilteredAI/NSFW-3B model from Huggin
 - Undi95/ReMM-NSFW - Specialized for NSFW content
 
 All these models can be found on Hugging Face and can be used by changing the `model_name` parameter in the application.
+
+## Running on Kaggle
+
+If you want to leverage Kaggle's free GPU resources to run the model:
+
+1. Check the `KAGGLE_USAGE.md` file for detailed instructions on setting up and running the model on Kaggle
+2. You can either run the model directly on Kaggle using the provided notebook templates or set up an API connection between GitHub Codespaces and Kaggle
+3. The Kaggle notebooks (`kaggle_notebook_template.ipynb` and `kaggle_api_notebook.ipynb`) are configured to use the T4 GPU available in Kaggle's free tier
+
+## Troubleshooting
+
+### Package Installation Issues
+
+- If you encounter errors with `accelerators` package, use `accelerate` instead. The requirements.txt has been updated to reflect this.
+- For Windows users, some packages might require Microsoft Visual C++ Build Tools. Install the [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with the "Desktop development with C++" workload.
+- If you're having issues with specific package versions, try installing without version constraints as mentioned in the Local Development section.
+
+### Model Loading Issues
+
+- If you encounter out-of-memory errors when loading the model, consider using the Kaggle option described in `KAGGLE_USAGE.md`.
+- The application will automatically fall back to mock mode if there are issues loading the model.
 
 ## License
 
