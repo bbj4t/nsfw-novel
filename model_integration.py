@@ -4,21 +4,23 @@ import numpy as np
 from typing import Dict, Any, Optional, List
 
 # This file provides the integration point for connecting to LLMs
-# In a real implementation, you would use llama-cpp-python here
+# Using Hugging Face Transformers with UnfilteredAI/NSFW-3B model
 
 class ModelIntegration:
-    def __init__(self, model_path: Optional[str] = None):
+    def __init__(self, model_name: str = "UnfilteredAI/NSFW-3B", use_mock: bool = False):
         """
         Initialize the model integration.
         
         Args:
-            model_path: Path to the GGUF model file. If None, will use mock responses.
+            model_name: Name of the Hugging Face model to use. Default is "UnfilteredAI/NSFW-3B".
+            use_mock: If True, will use mock responses instead of loading the model.
         """
-        self.model_path = model_path
+        self.model_name = model_name
         self.model = None
-        self.mock_mode = model_path is None
+        self.tokenizer = None
+        self.mock_mode = use_mock
         
-        # If a model path is provided, try to load the model
+        # If not in mock mode, try to load the model
         if not self.mock_mode:
             try:
                 self._load_model()
@@ -29,20 +31,26 @@ class ModelIntegration:
     
     def _load_model(self):
         """
-        Load the LLM model using llama-cpp-python.
-        
-        In a real implementation, this would use code like:
-        
-        from llama_cpp import Llama
-        self.model = Llama(
-            model_path=self.model_path,
-            n_ctx=4096,  # Context window size
-            n_threads=4  # Number of CPU threads to use
-        )
+        Load the LLM model using Hugging Face Transformers.
         """
-        print(f"Would load model from {self.model_path}")
-        # This is just a placeholder - in a real implementation, you would load the model here
-        pass
+        try:
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+            import torch
+            
+            print(f"Loading model {self.model_name} from Hugging Face...")
+            
+            # Load tokenizer and model
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                torch_dtype=torch.float16,  # Use half-precision to reduce memory usage
+                device_map="auto"  # Automatically determine the best device configuration
+            )
+            
+            print(f"Successfully loaded {self.model_name}")
+        except Exception as e:
+            raise Exception(f"Failed to load model: {str(e)}")
+
     
     def generate_story(self, prompt: str, genre: str, length: str, temperature: float = 0.7) -> str:
         """
@@ -64,26 +72,43 @@ class ModelIntegration:
     
     def _generate_with_model(self, prompt: str, genre: str, length: str, temperature: float) -> str:
         """
-        Generate a story using the loaded LLM model.
+        Generate a story using the loaded Hugging Face Transformers model.
+        """
+        import torch
         
-        In a real implementation, this would use code like:
+        # Map length to approximate token counts
+        length_to_tokens = {
+            "short": 512,
+            "medium": 1024,
+            "long": 2048
+        }
+        max_tokens = length_to_tokens.get(length, 1024)
         
         # Create a system prompt that guides the model
         system_prompt = f"You are an expert writer of {genre} NSFW stories. "
-        system_prompt += f"Write a {length} story based on the following prompt: {prompt}"
+        system_prompt += f"Write a {length} story based on the following prompt: {prompt}\n\n"
+        
+        # Tokenize the input
+        inputs = self.tokenizer(system_prompt, return_tensors="pt").to(self.model.device)
         
         # Generate the story
-        response = self.model.create_completion(
-            prompt=system_prompt,
-            max_tokens=2048,
-            temperature=temperature,
-            stop=["###", "\n\n\n"]
-        )
+        with torch.no_grad():
+            outputs = self.model.generate(
+                inputs["input_ids"],
+                max_new_tokens=max_tokens,
+                temperature=temperature,
+                top_p=0.9,
+                do_sample=True,
+                pad_token_id=self.tokenizer.eos_token_id
+            )
         
-        return response['choices'][0]['text'].strip()
-        """
-        # This is just a placeholder - in a real implementation, you would use the model here
-        return self._generate_mock_story(prompt, genre, length)
+        # Decode the generated text
+        generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        
+        # Remove the prompt from the generated text
+        story = generated_text[len(system_prompt):].strip()
+        
+        return story
     
     def _generate_mock_story(self, prompt: str, genre: str, length: str) -> str:
         """

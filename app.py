@@ -5,10 +5,10 @@ from model_integration import ModelIntegration
 
 app = Flask(__name__)
 
-# Initialize the model integration
-# In a real implementation, you would provide the path to your GGUF model file
-# model = ModelIntegration(model_path="path/to/your/model.gguf")
-model = ModelIntegration()  # Mock mode for GitHub Codespaces
+# Initialize the model integration with Hugging Face Transformers
+# By default, we use mock mode for GitHub Codespaces to avoid loading the large model
+# Set use_mock=False to use the actual UnfilteredAI/NSFW-3B model
+model = ModelIntegration(model_name="UnfilteredAI/NSFW-3B", use_mock=True)  # Mock mode for GitHub Codespaces
 
 # Serve the static HTML file
 @app.route('/')

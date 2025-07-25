@@ -1,6 +1,6 @@
 # NSFW Novel Generator
 
-A web application for generating NSFW stories using AI language models. This project is designed to run in GitHub Codespaces and can be configured to use various language models for story generation.
+A web application for generating NSFW stories using AI language models. This project is designed to run in GitHub Codespaces and uses the Hugging Face Transformers library with the UnfilteredAI/NSFW-3B model for story generation.
 
 ## Features
 
@@ -8,7 +8,8 @@ A web application for generating NSFW stories using AI language models. This pro
 - Support for different genres (Romance, Fantasy, Sci-Fi, Contemporary, Historical)
 - Adjustable story length and creativity settings
 - Flask backend API for story generation
-- Designed to work with self-hosted language models
+- Integration with Hugging Face Transformers for using the UnfilteredAI/NSFW-3B model
+- Designed to work with both local and cloud-hosted language models
 
 ## Getting Started with GitHub Codespaces
 
@@ -28,18 +29,26 @@ If you want to run the application locally instead of in Codespaces:
 3. Run the application: `python app.py`
 4. Open your browser to `http://localhost:5000`
 
-## Using with a Real Language Model
+## Using with the UnfilteredAI/NSFW-3B Model
 
-By default, the application runs in "mock mode" and generates predefined stories. To use it with a real language model:
+By default, the application runs in "mock mode" and generates predefined stories to save resources. To use it with the actual UnfilteredAI/NSFW-3B model:
 
-1. Download a GGUF format model file (e.g., Kunoichi-7B, Fimbulvetr-10.7B, or another NSFW-tuned model)
-2. Update the `app.py` file to initialize the model with the path to your model file:
+1. Update the `app.py` file to initialize the model with `use_mock=False`:
 
 ```python
-model = ModelIntegration(model_path="path/to/your/model.gguf")
+model = ModelIntegration(model_name="UnfilteredAI/NSFW-3B", use_mock=False)
 ```
 
-3. Adjust the model parameters in `model_integration.py` as needed
+2. The model will be automatically downloaded from Hugging Face the first time you run the application
+3. Note that this requires significant RAM and disk space as the model is approximately 3GB in size
+
+### Using with Other Hugging Face Models
+
+You can also use other Hugging Face models by changing the `model_name` parameter:
+
+```python
+model = ModelIntegration(model_name="YourPreferredModel/model-name", use_mock=False)
+```
 
 ## Project Structure
 
@@ -51,13 +60,14 @@ model = ModelIntegration(model_path="path/to/your/model.gguf")
 
 ## Notes on Model Selection
 
-For NSFW story generation, models specifically fine-tuned for creative writing and NSFW content tend to perform best. Some options to consider:
+This application is configured to use the UnfilteredAI/NSFW-3B model from Hugging Face, which is specifically designed for NSFW content generation. Other models you might consider:
 
-- Kunoichi-7B - Good performance on consumer hardware
-- Fimbulvetr-10.7B - Better quality but requires more resources
-- Aurelian-70B - High quality but requires significant hardware resources
+- UnfilteredAI/NSFW-3B - The default model, good balance of quality and resource usage
+- NeverSleep/Noromaid-3B-v0.1.1 - Another NSFW-focused model
+- PygmalionAI/pygmalion-6b - Good for character-based storytelling
+- Undi95/ReMM-NSFW - Specialized for NSFW content
 
-These models can be found on Hugging Face and other model repositories.
+All these models can be found on Hugging Face and can be used by changing the `model_name` parameter in the application.
 
 ## License
 
