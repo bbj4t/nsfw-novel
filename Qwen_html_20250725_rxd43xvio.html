@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novel NSFW Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e6e6e6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa502);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #ffa502;
+        }
+        
+        textarea, input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(20, 20, 35, 0.7);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider {
+            flex: 1;
+        }
+        
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: #ffa502;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ffa502);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(45deg, #555, #777);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .output-container {
+            position: relative;
+        }
+        
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffa502;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 165, 2, 0.2);
+        }
+        
+        #output {
+            background: rgba(20, 20, 35, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #ff6b6b;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status {
+            font-style: italic;
+            color: #ffa502;
+            margin-top: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Novel NSFW Generator</h1>
+            <p class="subtitle">AI-powered creative writing tool for mature content</p>
+        </header>
+        
+        <div class="card">
+            <div class="form-group">
+                <label for="prompt">Story Prompt</label>
+                <textarea id="prompt" placeholder="Enter your story idea or scenario...">A passionate encounter between two characters in a moonlit garden</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="genre">Genre</label>
+                <select id="genre">
+                    <option value="romance">Romance</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="sci-fi">Sci-Fi</option>
+                    <option value="contemporary">Contemporary</option>
+                    <option value="historical">Historical</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="length">Story Length</label>
+                <select id="length">
+                    <option value="short">Short (100-300 words)</option>
+                    <option value="medium" selected>Medium (300-600 words)</option>
+                    <option value="long">Long (600+ words)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="temperature">Creativity Level: <span id="temp-value" class="slider-value">0.7</span></label>
+                <div class="slider-container">
+                    <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7" class="slider">
+                </div>
+            </div>
+            
+            <button id="generate-btn" class="btn">Generate Story</button>
+        </div>
+        
+        <div class="card output-container">
+            <div class="output-header">
+                <h2>Generated Story</h2>
+                <button id="copy-btn" class="copy-btn">Copy Text</button>
+            </div>
+            <div id="output">Your generated story will appear here...</div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Generating your story... This may take a moment</p>
+            </div>
+            <div id="status" class="status"></div>
+        </div>
+        
+        <footer>
+            <p>This is a demonstration interface. In a real implementation, this would connect to a self-hosted NSFW language model.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generate-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const promptInput = document.getElementById('prompt');
+            const genreSelect = document.getElementById('genre');
+            const lengthSelect = document.getElementById('length');
+            const temperatureSlider = document.getElementById('temperature');
+            const tempValue = document.getElementById('temp-value');
+            const outputDiv = document.getElementById('output');
+            const loadingDiv = document.getElementById('loading');
+            const statusDiv = document.getElementById('status');
+            
+            // Update temperature display
+            temperatureSlider.addEventListener('input', function() {
+                tempValue.textContent = this.value;
+            });
+            
+            // Copy to clipboard
+            copyBtn.addEventListener('click', function() {
+                const text = outputDiv.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                });
+            });
+            
+            // Generate story
+            generateBtn.addEventListener('click', async function() {
+                const prompt = promptInput.value.trim();
+                if (!prompt) {
+                    alert('Please enter a story prompt');
+                    return;
+                }
+                
+                // Show loading state
+                generateBtn.disabled = true;
+                loadingDiv.style.display = 'block';
+                outputDiv.textContent = '';
+                statusDiv.textContent = 'Preparing request...';
+                
+                try {
+                    // In a real implementation, this would call your self-hosted model API
+                    // For demonstration, we'll simulate the API call
+                    
+                    statusDiv.textContent = 'Connecting to model...';
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                    
+                    statusDiv.textContent = 'Generating content...';
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Simulate API response
+                    const generatedStory = generateSampleStory(prompt, genreSelect.value, lengthSelect.value);
+                    
+                    outputDiv.textContent = generatedStory;
+                    statusDiv.textContent = 'Story generated successfully!';
+                } catch (error) {
+                    console.error('Error:', error);
+                    outputDiv.textContent = 'Error generating story. Please try again.';
+                    statusDiv.textContent = 'Generation failed';
+                } finally {
+                    loadingDiv.style.display = 'none';
+                    generateBtn.disabled = false;
+                }
+            });
+            
+            // Sample story generator (in a real app, this would be replaced by API call)
+            function generateSampleStory(prompt, genre, length) {
+                const stories = {
+                    romance: `The moonlight filtered through the ancient oak trees, casting dancing shadows on the garden path. ${prompt} as they found themselves alone in this secluded paradise.
+
+Their hearts raced as they drew closer, the scent of jasmine filling the air. His fingers gently traced her cheek, feeling the softness of her skin under the silver light. She leaned into his touch, her breath catching as his lips found hers.
+
+The kiss deepened, filled with weeks of unspoken desire. Her hands moved to his chest, feeling the steady rhythm of his heartbeat. He pulled her closer, his hands exploring the curve of her back as passion ignited between them.
+
+Time seemed to stand still in the moonlit garden, where two souls connected in the most intimate way, their love story unfolding under the watchful eyes of the stars.`,
+                    
+                    fantasy: `In the mystical realm of Aethermoor, ${prompt} took place in an enchanted grove where ancient magic flowed through the very air.
+
+The sorceress felt the power surge through her veins as she cast the spell of binding. The warrior's eyes glowed with otherworldly energy as he responded to her magical touch. Runes carved into the ancient stones began to pulse with ethereal light.
+
+Their connection transcended the physical realm, merging their souls in a dance of arcane energy. The magic intensified, wrapping around them like a cocoon of pure desire. As the spell reached its crescendo, reality itself seemed to bend to their will.
+
+In this sacred place where magic and passion intertwined, they became one with the ancient forces that governed their world, their union echoing through the mystical planes for eternity.`,
+                    
+                    "sci-fi": `Aboard the starship Nebula, ${prompt} occurred in the zero-gravity observation deck as they drifted among the stars.
+
+The advanced neural interface pulsed with energy as their minds connected through the quantum link. Her enhanced senses detected his arousal through bio-scans, while his cybernetic implants responded to her pheromones.
+
+In the weightless environment, their movements became a graceful ballet of desire. The holographic displays around them flickered as their passion overloaded the ship's sensors. His synthetic skin, designed to mimic human touch, traced patterns across her genetically enhanced form.
+
+As they reached climax, the artificial gravity briefly malfunctioned, sending waves of pleasure through their enhanced nervous systems. Their union was recorded in the ship's quantum logs as a perfect harmony of human emotion and technological evolution.`,
+                    
+                    contemporary: `In the heart of the city, ${prompt} unfolded in a rooftop garden hidden above the bustling streets below.
+
+The sounds of traffic faded into the background as they found their own private world among the potted plants and string lights. Her fingers worked quickly at the buttons of his shirt, revealing the toned chest beneath.
+
+He lifted her effortlessly onto the wrought iron table, her legs wrapping around his waist as their lips met hungrily. The cool metal beneath her back contrasted with the heat of his body pressing against hers.
+
+City lights twinkled around them like distant stars as they explored each other with desperate need. In this secret sanctuary high above the world, they found a moment of pure connection away from the chaos of modern life.`,
+                    
+                    historical: `In the candlelit chambers of the medieval castle, ${prompt} transpired during a secret rendezvous between a noble lady and her forbidden lover.
+
+The tapestries on the stone walls seemed to watch as they embraced with the passion of those who knew their time together was fleeting. Her silk gown pooled around her feet as he lifted her onto the canopied bed.
+
+The flickering candlelight cast shadows across his face as he kissed her neck, his hands exploring the curves hidden beneath layers of period clothing. She gasped as his fingers found their way past the intricate laces of her bodice.
+
+In an era where such liaisons could mean death, their love was all the more intense. The heavy wooden door creaked slightly in the night breeze as they lost themselves in each other, knowing that dawn would bring the harsh reality of their separate worlds.`
+                };
+                
+                let story = stories[genre] || stories.romance;
+                
+                // Adjust length
+                if (length === 'short') {
+                    story = story.split('\n\n')[0] + '\n\n' + story.split('\n\n')[1];
+                } else if (length === 'long') {
+                    story += '\n\n' + story.replace('their', 'the lovers\'').replace('they', 'the couple');
+                }
+                
+                return story;
+            }
+        });
+    </script>
+</body>
+</html>
