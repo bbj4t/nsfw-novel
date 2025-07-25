@@ -1,7 +1,31 @@
-flask==2.3.3
-numpy
-requests
-transformers
-torch
-accelerate
-sentencepiece
+# Core dependencies for Hugging Face Spaces
+gradio>=4.0.0
+transformers>=4.35.0
+torch>=2.0.0
+tokenizers>=0.14.0
+sentencepiece>=0.1.99
+accelerate>=0.24.0
+
+# Hugging Face ecosystem
+huggingface-hub>=0.17.0
+datasets>=2.14.0
+
+# Additional utilities
+numpy>=1.24.0
+requests>=2.31.0
+Pillow>=10.0.0
+
+# Optional: For better performance
+safetensors>=0.4.0
+optimum>=1.14.0
+
+# For logging and monitoring
+psutil>=5.9.0
+
+# Flask dependencies (for API compatibility)
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
